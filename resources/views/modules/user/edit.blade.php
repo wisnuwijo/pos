@@ -2,7 +2,7 @@
 
 {{-- Page title --}}
 @section('title')
-    Pengaturan
+    Pengguna
     @parent
 @stop
 
@@ -19,7 +19,7 @@
                 <a href="#">{{ $active }}</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="#">Add</a>
+                <a href="#">Edit</a>
             </li>
         </ol>
     </section>
@@ -37,32 +37,32 @@
                         </span>
                     </div>
                     <div class="card-body">
-                        <form action="{{ url('/user/addUser') }}" role="form" method="POST">
+                        <form action="{{ url('/user/editUser',$currentUser->id) }}" role="form" method="POST">
                             @csrf
                             <div class="form-group row">
                                 <label for="name" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left">Nama</label>
                                 <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
-                                    <input type="text" class="form-control form-control-lg" id="name" name="name" required>
+                                    <input type="text" class="form-control form-control-lg" id="name" name="name" value="{{ $currentUser->name }}" required>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="name" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left">Username</label>
                                 <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
-                                    <input type="text" class="form-control form-control-lg" id="username" name="username" required>
+                                    <input type="text" class="form-control form-control-lg" id="username" name="username" value="{{ $currentUser->username }}" required>
                                     <div class="invalid-feedback username-feedback"></div>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="name" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left">Password</label>
                                 <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
-                                    <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+                                    <input type="password" class="form-control form-control-lg" id="password" name="password" value="{{ $currentUser->secret }}" required>
                                     <div class="invalid-feedback password-feedback"></div>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="name" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left">Konfirmasi Password</label>
                                 <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
-                                    <input type="password" class="form-control form-control-lg" id="confirm-password" required>
+                                    <input type="password" class="form-control form-control-lg" id="confirm-password" value="{{ $currentUser->secret }}" required>
                                     <div class="invalid-feedback confirm-password-feedback"></div>
                                 </div>
                             </div>
@@ -74,7 +74,11 @@
                                             Please select
                                         </option>
                                         @foreach ($role as $rl)
-                                            <option value="{{ $rl->id }}">{{ $rl->name }}</option>
+                                            @if ($rl->id == $currentUser->role_id)
+                                                <option value="{{ $rl->id }}" selected>{{ $rl->name }}</option>
+                                            @else
+                                                <option value="{{ $rl->id }}">{{ $rl->name }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </div>
@@ -90,14 +94,18 @@
                                             <option opt-type="button" value="[add-shift]">+ TAMBAH SHIFT</option>
                                         </optgroup>
                                         @foreach ($shift as $shf)
-                                            <option opt-type="option" value="{{ $shf->id }}">{{ $shf->name }}</option>
+                                            @if ($shf->id == $currentUser->shift_id)
+                                                <option opt-type="option" value="{{ $shf->id }}" selected>{{ $shf->name }}</option>
+                                            @else
+                                                <option opt-type="option" value="{{ $shf->id }}">{{ $shf->name }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-sm-12 text-right">
-                                    <input type="submit" value="Simpan" class="btn btn-sm btn-primary" disabled>
+                                    <input type="submit" value="Simpan" class="btn btn-sm btn-primary">
                                 </div>
                             </div>
                         </form>
@@ -111,7 +119,7 @@
 
 @section('js')
 <script>
-    var usernameVerified = false, passwordVerified = false;
+    var usernameVerified = true, passwordVerified = true;
 
     function addShift() {
         var value = $('#shift option').filter(':selected').val();
@@ -133,6 +141,7 @@
             $('#password').addClass('is-invalid');
 
             passwordVerified = false;
+            enableDisableSubmitBtn();
         } else {
             $(this).removeClass('is-invalid');
             $(this).addClass('is-valid');
@@ -160,6 +169,7 @@
                 $('#password').addClass('is-invalid');
 
                 passwordVerified = false;
+                enableDisableSubmitBtn();
             } else {
                 $('#confirm-password').removeClass('is-invalid');
                 $('#confirm-password').addClass('is-valid');
@@ -205,7 +215,8 @@
             method: 'GET',
             data: {
                 '_token': '{{ csrf_token() }}',
-                'username': $(this).val()
+                'username': $(this).val(),
+                'exception': '{{ $currentUser->username }}'
             },
             success: function (res) {
                 $('#username').removeClass('is-invalid');
@@ -221,6 +232,7 @@
                 $('.username-feedback').text('Username sudah dipakai, gunakan username lain');
 
                 usernameVerified = false;
+                enableDisableSubmitBtn();
             }
         })
     });

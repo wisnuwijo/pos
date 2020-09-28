@@ -2,7 +2,7 @@
 
 {{-- Page title --}}
 @section('title')
-    Pengaturan
+    Pengguna
     @parent
 @stop
 
@@ -23,7 +23,21 @@
     <section class="content p-l-r-15">
         <div class="row">
             <div class="col-lg-12">
-                <div class="card card-success">
+                @if ($message = Session::get('success'))
+                    <div class="alert alert-success alert-block">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <strong>{{ $message }}</strong>
+                    </div>
+                @endif
+
+                @if ($message = Session::get('error'))
+                    <div class="alert alert-danger alert-block">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <strong>{{ $message }}</strong>
+                    </div>
+                @endif
+
+                <div class="card card-success" style="margin-top: 30px;">
                     <div class="card-header text-white bg-success">
                         <h3 class="card-title d-inline">
                             <i class="fa fa-fw fa-table"></i> Pengguna
@@ -43,6 +57,7 @@
                                 <tr>
                                     <td style="width:10px">No.</td>
                                     <td>Nama</td>
+                                    <td>Jabatan</td>
                                     <td>Shift</td>
                                     <td>Aksi</td>
                                 </tr>
@@ -53,10 +68,11 @@
                                     <tr>
                                         <td>{{ $no++ }}.</td>
                                         <td>{{ $usr->name }}</td>
+                                        <td>{{ $usr->roleName }}</td>
                                         <td>{{ is_null($usr->shiftName) ? '-' : $usr->shiftName }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-warning">Ubah</button>
-                                            <button class="btn btn-sm btn-danger">Hapus</button>
+                                            <a href="{{ url('user/edit',$usr->id) }}" class="btn btn-sm btn-warning">Ubah</a>
+                                            <button class="btn btn-sm btn-danger" onclick="confirmDelete('{{ $usr->id }}','{{ $usr->name }}')">Hapus</button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -67,7 +83,16 @@
             </div>
         </div>
     </section>
+    @include('modules.user.modal')
 @stop
 
 @section('js')
+<script>
+    function confirmDelete(userId, name) {
+        $('#confirm-delete-text').text('Kamu yakin akan menghapus '+name+'? Data akan dihapus secara permanen');
+        $('#confirmDelete').modal('show');
+
+        $('#form-delete-user').attr('action','{{ url("user/delete") }}/'+userId);
+    }
+</script>
 @stop

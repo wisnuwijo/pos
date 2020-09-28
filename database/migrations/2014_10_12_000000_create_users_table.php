@@ -18,7 +18,8 @@ class CreateUsersTable extends Migration
             $table->integer('role_id');
             $table->integer('shift_id')->nullable();
             $table->text('name');
-            $table->text('email')->unique();
+            // $table->text('email')->unique();
+            $table->text('email')->nullable();
             $table->text('username')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->text('password');
