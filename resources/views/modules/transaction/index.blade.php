@@ -80,7 +80,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <? $index = 1 ?>
+                                            <?php $index = 1 ?>
                                             @if (count($transaction) > 0)
                                                 @foreach ($transaction as $trx)
                                                     <tr>
@@ -127,7 +127,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <? $spendingNum = 1 ?>
+                                            <?php $spendingNum = 1 ?>
                                             @foreach ($spending as $spd)
                                                 <tr>
                                                     <td>{{ $spendingNum++ }}.</td>

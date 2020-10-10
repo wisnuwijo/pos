@@ -96,7 +96,7 @@
                                 <h4>Daftar pesanan</h4>
                                 <hr id="goodsListLine" style="width:100%;height:1px;background-color:rgb(216, 216, 216)" />
                             </div>
-                            <? $spendingNum = 1 ?>
+                            <?php $spendingNum = 1 ?>
                             @foreach ($detail_spending as $dspd)
                                 <div class="form-group m-t-10 row">
                                     <div class="col-xs-1">

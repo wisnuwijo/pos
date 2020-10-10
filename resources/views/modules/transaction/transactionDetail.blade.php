@@ -106,7 +106,7 @@
                                 <h4>Daftar pesanan</h4>
                                 <hr id="goodsListLine" style="width:100%;height:1px;background-color:rgb(216, 216, 216)" />
                             </div>
-                            <? $trxNum = 1 ?>
+                            <?php $trxNum = 1 ?>
                             @foreach ($detail_transaction as $dtrx)
                                 <div class="form-group m-t-10 row">
                                     <div class="col-xs-1">
