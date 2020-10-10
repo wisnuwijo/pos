@@ -163,7 +163,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <? $index = 1 ?>
+                                            <?php $index = 1 ?>
                                             @if (count($goods) > 0)
                                                 @foreach ($goods as $gds)
                                                     <tr>
