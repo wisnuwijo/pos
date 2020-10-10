@@ -32,6 +32,14 @@ class AccessSeeder extends Seeder
                 [
                     'module_id' => '5',
                     'role_id' => '1'
+                ],
+                [
+                    'module_id' => '1',
+                    'role_id' => '2'
+                ],
+                [
+                    'module_id' => '3',
+                    'role_id' => '2'
                 ]
             ]);
     }

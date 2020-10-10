@@ -3,11 +3,490 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use DB;
+use Auth;
 
 class TransactionController extends Controller
 {
     public function index(Request $req)
     {
-        dd('coming soon');
+        $goods = DB::table('goods')
+                    ->select([
+                        'goods.*',
+                        'supplier.name as supplierName',
+                        'supplier.id as supplierId',
+                        'goods_category.name as goodsCategoryName',
+                    ])
+                    ->leftJoin('supplier','goods.supplier_id','supplier.id')
+                    ->leftJoin('goods_category','goods.goods_category_id','goods_category.id')
+                    ->orderBy('goods.id','DESC')
+                    ->get();
+
+        $spending = DB::table('spending')
+                    ->orderBy('id','desc')
+                    ->get();
+
+        $transaction = DB::table('transaction')
+                        ->select(['transaction.*', 'payment_method.name as paymentMethodName'])
+                        ->join('payment_method','transaction.payment_method_id','payment_method.id')
+                        ->orderBy('transaction.id','desc')
+                        ->get();
+        $data = [
+            'goods' => $goods,
+            'spending' => $spending,
+            'transaction' => $transaction
+        ];
+
+        return view('modules.transaction.index', $data);
+    }
+
+    public function detailTrx(Request $req, $id)
+    {
+        $transaction = DB::table('transaction')
+                        ->select([
+                            'transaction.*',
+                            'voucher.voucher_name',
+                            'payment_method.name as paymentMethod'
+                        ])
+                        ->leftJoin('voucher', 'transaction.voucher_id','voucher.id')
+                        ->leftJoin('payment_method', 'transaction.payment_method_id','payment_method.id')
+                        ->where([
+                            ['transaction.id', $id]
+                        ])
+                        ->first();
+
+        if (!isset($transaction)) {
+            return abort(404);
+        }
+
+        $detailTransaction = DB::table('transaction_detail')
+                                ->where('transaction_detail.transaction_id',$id)
+                                ->get();
+
+        $data = [
+            'detail_transaction' => $detailTransaction,
+            'transaction' => $transaction
+        ];
+
+        return view('modules.transaction.transactionDetail', $data);
+    }
+
+    public function addSupplier(Request $req)
+    {
+        $addSupplier = DB::table('supplier')
+                        ->insert([
+                            'name' => $req->name,
+                            'address' => $req->address,
+                            'created_at' => now()
+                        ]);
+
+        if ($addSupplier) {
+            $getSuppllier = DB::table('supplier')->get();
+            return response()->json([
+                'data' => $getSuppllier
+            ]);
+        } else {
+            return response()->json([
+                'data' => []
+            ], 500);
+        }
+    }
+
+    public function addGoods(Request $req)
+    {
+        $getSupplier = DB::table('supplier')->get();
+        $goodsCategory = DB::table('goods_category')->get();
+        $data = [
+            'supplier' => $getSupplier,
+            'goods_category' => $goodsCategory
+        ];
+
+        return view('modules.transaction.goodsAdd', $data);
+    }
+
+    public function goodsCategory(Request $req)
+    {
+        $addCategory = DB::table('goods_category')
+                        ->insert([
+                            'name' => $req->name,
+                            'created_at' => now()
+                        ]);
+
+        if ($addCategory) {
+            $getCategory = DB::table('goods_category')->get();
+            return response()->json([
+                'data' => $getCategory
+            ]);
+        } else {
+            return response()->json([
+                'data' => []
+            ], 500);
+        }
+    }
+
+    public function storeGoods(Request $req)
+    {
+        // generate goods code
+        $code = 'GDS-1';
+        $getGoods = DB::table('goods')->get();
+        if (count($getGoods) > 0) {
+            $containNumber = [];
+            foreach ($getGoods as $gg) {
+                $getNumber = ltrim($gg->code,'GDS-');
+                $containNumber[] = $getNumber;
+            }
+
+            $maxNumber = max($containNumber) + 1;
+            $code = 'GDS-'.$maxNumber;
+        }
+
+        $insertGoods = DB::table('goods')
+                        ->insert([
+                            'code' => $code,
+                            'goods_category_id' => $req->goods_category,
+                            'supplier_id' => $req->supplier,
+                            'name' => $req->name,
+                            'selling_price' => $req->selling_price
+                        ]);
+
+        if ($insertGoods) {
+            return redirect('/transaction')->with(['success' => 'Barang berhasil ditambah']);
+        } else {
+            return redirect('/transaction')->with(['error' => 'Barang gagal ditambahkan']);;
+        }
+    }
+
+    public function editGoods(Request $req, $goodsId)
+    {
+        $getGoods = DB::table('goods')
+                    ->select([
+                        'goods.*',
+                        'supplier.id as supplierId',
+                        'supplier.name as supplierName'
+                    ])
+                    ->leftJoin('supplier','goods.supplier_id','supplier.id')
+                    ->where('goods.id', $goodsId)
+                    ->first();
+
+        $getSupplier = DB::table('supplier')->get();
+        $data = [
+            'goods' => $getGoods,
+            'supplier' => $getSupplier
+        ];
+
+        if (isset($getGoods)) {
+            return view('modules.transaction.goodsEdit', $data);
+        } else {
+            return abort(404);
+        }
+    }
+
+    public function updateGoods(Request $req, $goodsId)
+    {
+        $updateGoods = DB::table('goods')
+                        ->where('id', $goodsId)
+                        ->update([
+                            'name' => $req->name,
+                            'selling_price' => $req->selling_price,
+                            'supplier_id' => $req->supplier,
+                            'updated_at' => now()
+                        ]);
+
+        if ($updateGoods) {
+            return redirect('/transaction')->with(['success' => 'Barang berhasil diubah']);
+        } else {
+            return redirect('/transaction')->with(['error' => 'Barang gagal diubah']);;
+        }
+    }
+
+    public function deleteGoods(Request $req, $id)
+    {
+        $deleteGoods = DB::table('goods')->where('id', $id)->delete();
+
+        if ($deleteGoods) {
+            return redirect('/transaction')->with(['success' => 'Barang berhasil dihapus']);
+        } else {
+            return redirect('/transaction')->with(['error' => 'Barang gagal dihapus']);;
+        }
+    }
+
+    public function transactionAdd(Request $req)
+    {
+        $goods = DB::table('goods')->get();
+        $voucher = DB::table('voucher')->get();
+        $paymentMethod = DB::table('payment_method')->get();
+
+        $data = [
+            'goods' => $goods,
+            'voucher' => $voucher,
+            'paymentMethod' => $paymentMethod
+        ];
+
+        return view('modules.transaction.transactionAdd', $data);
+    }
+
+    public function addTransaction(Request $req)
+    {
+        $name = $req->name;
+        $date = $req->date;
+        $grandTotal = $req->grand_total;
+        $voucher = $req->voucher;
+        $paymentMethodId = $req->payment_method;
+        $pickupMethod = $req->pickup_method;
+
+        $goods = $req->goods;
+        $qty = $req->qty;
+        $discountType = $req->discount_type;
+        $discount = $req->discount;
+        $price = $req->price;
+
+        $insertTrx = DB::table('transaction')
+                        ->insert([
+                            'customer_name' => $name,
+                            'shift_record_id' => Auth::user()->shift_record_id,
+                            'pickup_method' => $pickupMethod,
+                            'payment_method_id' => $paymentMethodId,
+                            'grand_total' => $grandTotal,
+                            'total_qty' => array_sum($qty),
+                            'voucher_id' => $voucher,
+                            'created_at' => now()
+                        ]);
+
+        $getLastTrx = DB::table('transaction')
+                        ->orderBy('id','desc')
+                        ->first();
+
+        $trxId = isset($getLastTrx) ? $getLastTrx->id : 0;
+        for ($i=0; $i < count($goods); $i++) {
+            $goodsName = DB::table('goods')
+                            ->where('id',$goods[$i])
+                            ->first();
+
+            $discPercent = 0;
+            $discAmount = 0;
+            if ($discountType[$i] == 'percent') {
+                $discPercent = $discount[$i];
+            } else {
+                $discAmount = $discount[$i];
+            }
+
+            $insertTrxDetail = DB::table('transaction_detail')
+                                ->insert([
+                                    'transaction_id' => $trxId,
+                                    'qty' => $qty[$i],
+                                    'goods_id' => $goods[$i],
+                                    'goods_name' => $goodsName->name,
+                                    'goods_price' => $goodsName->selling_price,
+                                    'goods_price_after_discount' => $price[$i],
+                                    'goods_discount_percent' => $discPercent,
+                                    'goods_discount_amount' => $discAmount,
+                                    'created_at' => now()
+                                ]);
+        }
+
+        return redirect('/transaction')->with(['success' => 'Transaksi berhasil ditambah']);
+    }
+
+    public function deleteTransaction(Request $req, $id)
+    {
+        $getHeader = DB::table('transaction')->where('id', $id)->first();
+        $getDetail = DB::table('transaction_detail')->where('transaction_id', $id)->get();
+
+        $headerJson = json_encode($getHeader);
+        $detailJson = json_encode($getDetail);
+
+        $backup = DB::table('deleted_transaction')
+                    ->insert([
+                        'user_id' => Auth::user()->id,
+                        'transaction' => $headerJson,
+                        'transaction_detail' => $detailJson,
+                        'created_at' => now()
+                    ]);
+
+        $deleteHeader = DB::table('transaction')->where('id', $id)->delete();
+        $deleteDetail = DB::table('transaction_detail')->where('transaction_id', $id)->delete();
+        if ($deleteHeader && $deleteDetail) {
+            return redirect('/transaction')->with(['success' => 'Transaksi berhasil dihapus']);
+        } else {
+            return redirect('/transaction')->with(['error' => 'Transaksi gagal dihapus']);;
+        }
+    }
+
+    public function detailVoucher($id)
+    {
+        $data = json_encode(DB::table('voucher')->where('id',$id)->first());
+        return response($data);
+    }
+
+    public function addVoucher(Request $req)
+    {
+        $voucherName = $req->voucher_name;
+        $voucherDiscountPercent = $req->voucher_discount_percent;
+        $voucherDiscountAmount = $req->voucher_discount_amount;
+
+        $insertVoucher = DB::table('voucher')
+                            ->insert([
+                                'voucher_name' => $voucherName,
+                                'voucher_discount_percent' => $voucherDiscountPercent,
+                                'voucher_discount_amount' => $voucherDiscountAmount
+                            ]);
+
+        if ($insertVoucher) {
+            $voucher = DB::table('voucher')->get();
+            return response()->json(['data' => $voucher]);
+        } else {
+            return response()->json([], 500);
+        }
+    }
+
+    public function getPrice($id)
+    {
+        $goods = DB::table('goods')
+                    ->select([
+                        'goods.*',
+                        'goods_category.name as category_name',
+                        'goods_category.id as category_id'
+                    ])
+                    ->leftJoin('goods_category','goods.goods_category_id','goods_category.id')
+                    ->where('goods.id', $id)
+                    ->first();
+
+        return response()->json(
+            isset($goods)
+                ? ['data' => $goods]
+                : ['data' => []]);
+    }
+
+    public function addPaymentMethod(Request $req)
+    {
+        $paymentMethodName = $req->payment_method_name;
+
+        $insertPaymentMethod = DB::table('payment_method')
+                                ->insert([
+                                    'name' => $paymentMethodName,
+                                    'created_at' => now()
+                                ]);
+
+        if ($insertPaymentMethod) {
+            $paymentMethod = DB::table('payment_method')->get();
+            return response()->json(['data' => $paymentMethod]);
+        } else {
+            return response()->json([], 500);
+        }
+    }
+
+    public function addSpending(Request $req)
+    {
+        $goods = DB::table('goods')->get();
+        $voucher = DB::table('voucher')->get();
+        $paymentMethod = DB::table('payment_method')->get();
+        $supplier = DB::table('supplier')->get();
+
+        $data = [
+            'goods' => $goods,
+            'voucher' => $voucher,
+            'supplier' => $supplier,
+            'paymentMethod' => $paymentMethod
+        ];
+
+        return view('modules.transaction.spendingAdd', $data);
+    }
+
+    public function storeSpending(Request $req)
+    {
+        $detailSupplier = DB::table('supplier')
+                            ->where('id', $req->supplier)
+                            ->first();
+
+        // get spending ID
+        $spending = DB::table('spending')->orderBy('id','desc')->first();
+        $spendingId = isset($spending) ? $spending->id + 1 : 1;
+
+        $insertSpending = DB::table('spending')
+                            ->insert([
+                                'id' => $spendingId,
+                                'shift_record_id' => Auth::user()->shift_record_id,
+                                'supplier_id' => $req->supplier,
+                                'supplier_name' => isset($detailSupplier) ? $detailSupplier->name : '',
+                                'grand_total' => $req->grand_total,
+                                'note' => $req->note,
+                                'created_at' => now()
+                            ]);
+
+        $goods = $req->goods;
+        $category = $req->category;
+        $qty = $req->qty;
+        $price = $req->price;
+
+        for ($i=0; $i < count($goods); $i++) {
+            $getGoodsName = DB::table('goods')
+                            ->select([
+                                'goods.*',
+                                'goods_category.name as category_name'
+                            ])
+                            ->leftJoin('goods_category','goods.goods_category_id','goods_category.id')
+                            ->where('goods.id', $goods[$i])
+                            ->first();
+
+            $insertDetail = DB::table('spending_detail')
+                            ->insert([
+                                'spending_id' => $spendingId,
+                                'goods_id' => $goods[$i],
+                                'goods_category' => isset($getGoodsName) ? $getGoodsName->category_name : '',
+                                'goods_name' => isset($getGoodsName) ? $getGoodsName->name : '',
+                                'qty' => $qty[$i],
+                                'price' => $price[$i],
+                                'created_at' => now()
+                            ]);
+        }
+
+        return redirect('/transaction')->with(['success' => 'Pengeluaran berhasil disimpan']);
+    }
+
+    public function detailSpending(Request $req, $id)
+    {
+        $spending = DB::table('spending')
+                    ->where('id', $id)
+                    ->first();
+
+        if (!isset($spending)) {
+            return abort(404);
+        }
+
+        $detailSpending = DB::table('spending_detail')
+                        ->where('spending_detail.spending_id',$id)
+                        ->get();
+
+        $data = [
+            'spending' => $spending,
+            'detail_spending' => $detailSpending
+        ];
+
+        return view('modules.transaction.spendingDetail', $data);
+    }
+
+    public function deleteSpending($id)
+    {
+        $getHeader = DB::table('spending')->where('id', $id)->first();
+        $getDetail = DB::table('spending_detail')->where('spending_id', $id)->get();
+
+        $headerJson = json_encode($getHeader);
+        $detailJson = json_encode($getDetail);
+
+        $backup = DB::table('deleted_spending')
+                    ->insert([
+                        'user_id' => Auth::user()->id,
+                        'spending' => $headerJson,
+                        'spending_detail' => $detailJson,
+                        'created_at' => now()
+                    ]);
+
+        $deleteHeader = DB::table('spending')->where('id', $id)->delete();
+        $deleteDetail = DB::table('spending_detail')->where('spending_id', $id)->delete();
+        if ($deleteHeader && $deleteDetail) {
+            return redirect('/transaction')->with(['success' => 'Pengeluaran berhasil dihapus']);
+        } else {
+            return redirect('/transaction')->with(['error' => 'Pengeluaran gagal dihapus']);;
+        }
     }
 }

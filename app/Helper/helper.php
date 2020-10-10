@@ -75,3 +75,43 @@ function checkAccess($roleId, $moduleId)
 
     return isset($checkAccess);
 }
+
+
+function formatDate($date) {
+    if ($date != '') {
+        $explode1 = explode(' ', $date);
+
+        if (count($explode1) > 1) {
+            // time included
+            $explode2 = explode('-', $explode1[0]);
+            $year = $explode2[0];
+            $month = $explode2[1];
+            $day = $explode2[2];
+
+            $explode3 = explode(':', $explode1[1]);
+            $hour = $explode3[0];
+            $minute = $explode3[1];
+
+            $final = $day.'-'.$month.'-'.$year.' '.$hour.':'.$minute;
+
+            return $final;
+        } else {
+            // only date
+            $explode2 = explode('-', $explode1[0]);
+            $year = $explode2[0];
+            $month = $explode2[1];
+            $day = $explode2[2];
+
+            $final = $day.'-'.$month.'-'.$year;
+
+            return $final;
+        }
+    }
+}
+
+function formatNumber($number) {
+    if ($number != '') {
+        $format = number_format($number,2,',','.');
+	    return $format;
+    }
+}

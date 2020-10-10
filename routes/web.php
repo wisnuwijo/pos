@@ -7,7 +7,21 @@ Route::get('auth/logout', function() {
     return redirect('/');
 });
 
-Route::group(['middleware' => ['auth','role']], function() {
+Route::get('/home', function () {
+    return redirect('/');
+})->middleware('auth');
+
+Route::group(['middleware' => 'auth'], function() {
+    // set opening balance
+    Route::get('/opening_balance', 'HomeController@setOpeningBalance');
+    Route::post('/opening_balance', 'HomeController@saveOpeningBalance');
+
+    // set closing balance
+    Route::get('/closing_balance', 'HomeController@setClosingBalance');
+    Route::post('/closing_balance', 'HomeController@saveClosingBalance');
+});
+
+Route::group(['middleware' => ['auth','role','staff']], function() {
 
     // dashboard
     Route::get('/', 'HomeController@index');
@@ -18,6 +32,7 @@ Route::group(['middleware' => ['auth','role']], function() {
         Route::get('/add', 'UserController@add');
         Route::post('/add/shift','UserController@addShift');
         Route::post('/addUser','UserController@addUser');
+        Route::post('/add/supplier','UserController@addSupplier');
 
         Route::get('edit/{userId}','UserController@edit');
         Route::post('editUser/{userId}','UserController@editUser');
@@ -30,8 +45,38 @@ Route::group(['middleware' => ['auth','role']], function() {
     // transaction
     Route::group(['prefix' => 'transaction'], function() {
         Route::get('/', 'TransactionController@index');
+        Route::get('/detail/{id}', 'TransactionController@detailTrx');
+        Route::get('/add', 'TransactionController@transactionAdd');
+        Route::post('/add/goodsCategory','TransactionController@goodsCategory');
+        Route::post('/add', 'TransactionController@addTransaction');
+        Route::post('/delete/{id}', 'TransactionController@deleteTransaction');
+        Route::get('/voucher/{id}','TransactionController@detailVoucher');
+        Route::post('/voucher/add','TransactionController@addVoucher');
+        Route::post('/paymentMethod/add','TransactionController@addPaymentMethod');
+        Route::post('/add/supplier','TransactionController@addSupplier');
+
+        Route::group(['prefix' => 'goods'], function() {
+            Route::get('/add', 'TransactionController@addGoods');
+            Route::post('/add', 'TransactionController@storeGoods');
+            Route::get('/edit/{id}', 'TransactionController@editGoods');
+            Route::post('/edit/{id}', 'TransactionController@updateGoods');
+            Route::post('/delete/{id}','TransactionController@deleteGoods');
+
+            Route::get('/getPrice/{id}', 'TransactionController@getPrice');
+        });
+
+        Route::group(['prefix' => 'spending'], function() {
+            Route::get('/detail/{id}', 'TransactionController@detailSpending');
+            Route::get('/add', 'TransactionController@addSpending');
+            Route::post('/add', 'TransactionController@storeSpending');
+            Route::post('/delete/{id}', 'TransactionController@deleteSpending');
+        });
     });
 
+    // report
+    Route::group(['prefix' => 'report'], function() {
+        Route::get('/', 'ReportController@index');
+    });
 
     // setting
     Route::group(['prefix' => 'setting'], function() {

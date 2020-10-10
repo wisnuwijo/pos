@@ -19,19 +19,13 @@
     <!-- global css -->
     <link rel="stylesheet" type="text/css" href="{{asset('assets/css/app.css')}}"/>
     <link rel="stylesheet" type="text/css" href="{{asset('assets/css/custom.css')}}">
-
-    {{--  <link rel="stylesheet" href="vendors/pnotify/css/pnotify.css">
-    <link href="{{asset('assets/vendors/pnotify/css/pnotify.brighttheme.css')}}" rel="stylesheet" type="text/css"/>
-    <link href="{{asset('assets/vendors/pnotify/css/pnotify.buttons.css')}}" rel="stylesheet" type="text/css"/>
-    <link href="{{asset('assets/vendors/pnotify/css/pnotify.mobile.css')}}" rel="stylesheet" type="text/css"/>
-    <link href="{{asset('assets/vendors/pnotify/css/pnotify.history.css')}}" rel="stylesheet" type="text/css"/>  --}}
 @yield('header_styles')
 <!-- end of global css -->
 </head>
 <body class="skin-coreplus">
-{{--  <div class="preloader">
+ <div class="preloader">
     <div class="loader_img"><img src="{{asset('assets/img/loader.gif')}}" alt="loading..." height="64" width="64"></div>
-</div>  --}}
+</div>
 <!-- header logo: style can be found in header-->
 <header class="header">
     <nav class="navbar navbar-expand-md navbar-static-top">
@@ -157,20 +151,24 @@
                             <p> {{ Auth::user()->name }}</p>
                         </li>
                         <!-- Menu Body -->
-                        <li class="p-t-3 nav-item" ><a href="{{ URL :: to('user_profile') }}" class="nav-link"> <i class="fa fa-fw fa-user"></i> My
-                                Profile </a>
+                        {{--  <li class="p-t-3 nav-item" >
+                            <a href="{{ URL :: to('user_profile') }}" class="nav-link"> <i class="fa fa-fw fa-user"></i> My Profile </a>
                         </li>
                         <li role="presentation "></li>
-                        <li class="nav-item"><a href="{{ URL :: to('edit_user') }}" class="nav-link"> <span><i class="fa fa-fw fa-gear"></i> Account Settings</span>
-                            </a></li>
+                        <li class="nav-item">
+                            <a href="{{ URL :: to('edit_user') }}" class="nav-link">
+                                <span><i class="fa fa-fw fa-gear"></i>Account Settings</span>
+                            </a>
+                        </li>  --}}
+
                         <li role="presentation" class="dropdown-divider"></li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a href="{{ URL :: to('lockscreen') }} ">
+                                {{--  <a href="{{ URL :: to('lockscreen') }} ">
                                     <i class="fa fa-fw fa-lock"></i>
                                     Lock
-                                </a>
+                                </a>  --}}
                             </div>
                             <div class="pull-right">
                                 <a href="{{ URL :: to('auth/logout') }} ">
@@ -204,9 +202,19 @@
                             <h4 class="media-heading">
                                 {{ Auth::user()->name }}
                             </h4>
-                            <p class="list-inline" style="color:#bfbebe">
-                                {{ \DB::table('role')->where('id', Auth::user()->role_id)->first()->name }}
-                            </p>
+                            <div class="row">
+                                {{--  <div class="col-md-12">
+                                    <p class="list-inline" style="color:#bfbebe">
+                                        {{ \DB::table('role')->where('id', Auth::user()->role_id)->first()->name }}
+                                    </p>
+                                </div>  --}}
+                                <div class="col-md-12">
+                                    {{--  only for staff  --}}
+                                    @if (Auth::user()->role_id == 2)
+                                        <a href="{{ url('closing_balance') }}" class="btn-xs btn btn-default">Akhiri Shift</a>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -232,14 +240,5 @@
 @yield('footer_scripts')
 <!-- end page level js -->
 </body>
-{{--  <script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.animate.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.buttons.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.confirm.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.nonblock.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.mobile.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.desktop.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.history.js')}}"></script>
-<script type="text/javascript" src="{{asset('assets/vendors/pnotify/js/pnotify.callbacks.js')}}"></script>  --}}
 @yield('js')
 </html>
