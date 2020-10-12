@@ -272,6 +272,7 @@
 @stop
 
 @section('js')
+<script src="{{asset('js/recta.js')}}" type="text/javascript"></script>
 <script type="text/javascript" src="{{ asset('assets/vendors/select2/js/select2.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/vendors/select2/js/select2.full.js') }}"></script>
 <script>
@@ -309,7 +310,8 @@
                 .text('Menyimpan ...')
                 .attr('disabled', '');
 
-            $('#addTransaction').submit();
+            // $('#addTransaction').submit();
+            saveTransaction();
         }
     })
 
@@ -674,6 +676,49 @@
         } else {
             $('#grandTotal').val(total);
         }
+    }
+
+    function printReceipt() {
+        var printer = new Recta('APPKEY', '1811');
+        printer.open().then(function () {
+            printer.align('center')
+                .text('Hello World !!')
+                .bold(true)
+                .text('This is bold text')
+                .bold(false)
+                .underline(true)
+                .text('This is underline text')
+                .underline(false)
+                .barcode('UPC-A', '123456789012')
+                .cut()
+                .print()
+        })
+    }
+
+    function saveTransaction() {
+        $.ajax({
+            url: '{{ url("transaction/add") }}',
+            method: 'POST',
+            data: $('#addTransaction').serialize(),
+            beforeSend: function () {
+                $('#btn-save')
+                    .text('Menyimpan ...')
+                    .attr('disabled','');
+            },
+            success: function (res) {
+                $('#btn-save')
+                    .text('Simpan')
+                    .removeAttr('disabled');
+
+                console.log('berhasil');
+                console.log(res);
+
+                $('#receipt').modal('show');
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
     }
 
     var handleChange = {

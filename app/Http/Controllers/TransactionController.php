@@ -284,7 +284,17 @@ class TransactionController extends Controller
                                 ]);
         }
 
-        return redirect('/transaction')->with(['success' => 'Transaksi berhasil ditambah']);
+        // return redirect('/transaction')->with(['success' => 'Transaksi berhasil ditambah']);
+        $getHeader = DB::table('transaction')
+                        ->where('id',$trxId)
+                        ->first();
+        $getDetail = DB::table('transaction_detail')
+                        ->where('transaction_id',$trxId)
+                        ->get();
+        return response()->json([
+            'header' => $getHeader,
+            'detail' => $getDetail
+        ]);
     }
 
     public function deleteTransaction(Request $req, $id)
