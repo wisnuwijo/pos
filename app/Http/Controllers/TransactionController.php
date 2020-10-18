@@ -567,6 +567,17 @@ class TransactionController extends Controller
             ]);
         }
 
+        if (isset($jurnalOpeningShift) && $jurnalOpeningShift->closing_balance != null) {
+            $journal[] = [
+                'no' => count($journal) + 1,
+                'staff' => $staffName,
+                'grand_total' => 'Rp. '.formatNumber($jurnalOpeningShift->closing_balance),
+                'created_at' => formatDate($jurnalOpeningShift->created_at),
+                'type' => 'Closing Balance',
+                'balance' => 'Rp. '.formatNumber($jurnalOpeningShift->closing_balance),
+            ];
+        }
+
         return response()->json([
             'data' => $journal
         ]);
