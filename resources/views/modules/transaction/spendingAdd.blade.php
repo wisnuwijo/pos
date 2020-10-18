@@ -220,9 +220,7 @@
     $('#btn-save').click(function (e) {
         e.preventDefault();
 
-        var supplier = $('#supplier')
-                        .filter(':selected')
-                        .val(),
+        var supplier = $('#supplier').val(),
             date = $('#date').val(),
             itemBought = $('.item-bought').length;
 

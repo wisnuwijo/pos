@@ -19,6 +19,16 @@ Route::group(['middleware' => 'auth'], function() {
     // set closing balance
     Route::get('/closing_balance', 'HomeController@setClosingBalance');
     Route::post('/closing_balance', 'HomeController@saveClosingBalance');
+    // show active shift balance
+    Route::get('/data/journal','TransactionController@journal');
+    Route::get('/journal', 'TransactionController@transactionJournal');
+
+    // stats
+    Route::group(['prefix' => 'stats'], function() {
+        Route::get('income','StatsController@income');
+        Route::get('outcome','StatsController@outcome');
+    });
+
 });
 
 Route::group(['middleware' => ['auth','role','staff']], function() {
@@ -76,6 +86,7 @@ Route::group(['middleware' => ['auth','role','staff']], function() {
     // report
     Route::group(['prefix' => 'report'], function() {
         Route::get('/', 'ReportController@index');
+        Route::get('/data/jurnal','ReportController@jurnal');
     });
 
     // setting

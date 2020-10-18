@@ -8,7 +8,7 @@
                 <ul class="list-unstyled margin-none">
                     <li class="rightsidebar-contact-wrapper">
                         <a class="rightsidebar-contact" href="#">
-                            <img src="{{asset('assets/img/authors/avatar1.jpg')}}" height="20" width="20"
+                            <img src="{{asset('assets/img/authors/avatar1.png')}}" height="20" width="20"
                                  class="rounded-circle pull-right" alt="avatar-image">
                             <i class="fa fa-circle text-xs text-primary"></i> Alanis
                         </a>

@@ -6,6 +6,18 @@
     @parent
 @stop
 
+{{--  Header styles  --}}
+@section('header_styles')
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/datatables/css/dataTables.bootstrap4.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/datatables/css/buttons.bootstrap4.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/datatables/css/rowReorder.bootstrap4.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/datatables/css/colReorder.bootstrap4.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/datatables/css/scroller.bootstrap4.css') }}"/>
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom_css/datatables_custom.css') }}">
+@endsection
+
 {{-- Page content --}}
 @section('content')
     <!-- Content Header (Page header) -->
@@ -51,13 +63,13 @@
                         <div class="bs-example">
                             <ul class="nav nav-tabs" style="margin-bottom: 15px;">
                                 <li class=" nav-item">
-                                    <a href="#transaction" data-toggle="tab" class="nav-link active show">Penjualan</a>
+                                    <a href="#transaction" id="salesTab" data-toggle="tab" class="nav-link active show">Penjualan</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#spending" data-toggle="tab" class="nav-link">Pengeluaran</a>
+                                    <a href="#spending" id="spendingTab" data-toggle="tab" class="nav-link">Pengeluaran</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#barang" data-toggle="tab" class="nav-link">Data Barang</a>
+                                    <a href="#barang" id="goodsTab" data-toggle="tab" class="nav-link">Data Barang</a>
                                 </li>
                             </ul>
                             <div id="myTabContent" class="tab-content">
@@ -66,7 +78,7 @@
                                         Tambah Penjualan
                                     </a>
 
-                                    <table class="table table-striped" style="margin-top:20px">
+                                    <table class="table table-striped" id="salesTable" style="margin-top:20px">
                                         <thead>
                                             <tr>
                                                 <td style="width:10px">No.</td>
@@ -116,7 +128,7 @@
                                         Tambah Pengeluaran
                                     </a>
 
-                                    <table class="table table-striped" style="margin-top:20px">
+                                    <table class="table table-striped" id="spendingTable" style="margin-top:20px">
                                         <thead>
                                             <tr>
                                                 <td style="width:10px">No.</td>
@@ -150,7 +162,7 @@
                                         Tambah Barang
                                     </a>
 
-                                    <table class="table table-striped" style="margin-top:20px">
+                                    <table class="table table-striped" id="goodsTable" style="margin-top:20px">
                                         <thead>
                                             <tr>
                                                 <td style="width:10px">No.</td>
@@ -196,7 +208,25 @@
 @stop
 
 @section('js')
+<script type="text/javascript" src="{{ asset('assets/vendors/datatables/js/jquery.dataTables.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/vendors/datatables/js/dataTables.bootstrap4.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/vendors/datatables/js/dataTables.rowReorder.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/vendors/datatables/js/dataTables.scroller.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/js/custom_js/datatables_custom.js') }}"></script>
 <script>
+    $(function () {
+        $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
+            $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+        });
+
+        $('table.table').DataTable({
+            scrollY: 500,
+            scrollCollapse: true,
+            paging: true,
+            responsive: true
+        });
+    })
+
     function transactionConfirmDelete(trxId, customerName) {
         $('#form-delete-confirmation').attr('action','{{ url("transaction/delete") }}/'+trxId);
         $('#confirm-delete-text').text('Kamu yakin akan menghapus penjualan atas nama '+customerName+'? Data akan dihapus secara permanen');

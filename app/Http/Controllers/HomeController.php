@@ -80,9 +80,53 @@ class HomeController extends Controller
         }
     }
 
+    public function calculateJournal()
+    {
+        $jurnalOpeningShift = DB::table('shift_record')
+                                ->where([
+                                    ['active',1]
+                                ])
+                                ->first();
+
+        $shiftRecordId = isset($jurnalOpeningShift) ? $jurnalOpeningShift->id : 0;
+        $staffId = isset($jurnalOpeningShift) ? $jurnalOpeningShift->user_id : 0;
+        $staffName = $staffId != 0 ? DB::table('users')->where('id', $staffId)->first()->name : '';
+
+        $getShiftTrx = DB::table('transaction')
+                        ->selectRaw('"'.$staffName.'" as staff, grand_total, created_at, "Income" as type')
+                        ->where('shift_record_id', $shiftRecordId);
+
+        $getShiftSpending = DB::table('spending')
+                            ->selectRaw('"'.$staffName.'" as staff, grand_total, created_at, "Spending" as type')
+                            ->where('shift_record_id', $shiftRecordId)
+                            ->union($getShiftTrx)
+                            ->orderBy('created_at','asc')
+                            ->get();
+
+        $currentBalance = isset($jurnalOpeningShift) ? $jurnalOpeningShift->opening_balance : 0;
+        $finalBalance = 0;
+        for ($i=0; $i < count($getShiftSpending); $i++) {
+            if (strtolower($getShiftSpending[$i]->type) == 'income') {
+                // +
+                $currentBalance += $getShiftSpending[$i]->grand_total;
+                $finalBalance = $currentBalance;
+            } else {
+                // -
+                $currentBalance -= $getShiftSpending[$i]->grand_total;
+                $finalBalance = $currentBalance;
+            }
+        }
+
+        return $finalBalance;
+    }
+
     public function setClosingBalance()
     {
-        return view('modules.general.setClosingBalance');
+        $data = [
+            'journal' => $this->calculateJournal()
+        ];
+
+        return view('modules.general.setClosingBalance', $data);
     }
 
     public function saveClosingBalance(Request $req)

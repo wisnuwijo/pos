@@ -72,7 +72,7 @@
                             <div class="form-body px-3">
                                 <div class="form-group m-t-10 row">
                                     <label for="customerName" class="col-form-label text-lg-right text-left">
-                                        Nama Customer
+                                        Nama Customer <span class="text-warning" style="font-weight: bold;">(opsional)</span>
                                     </label>
                                     <input type="text" id="customerName" class="form-control" name="name" placeholder="Contoh: Bimo" autofocus>
                                 </div>
@@ -86,7 +86,19 @@
                                     <label for="grandTotal" class="col-form-label text-lg-right text-left">
                                         Grand total
                                     </label>
-                                    <input type="text" id="grandTotal" class="form-control" name="grand_total" value="0" name="grand_total" readonly>
+                                    <input type="text" id="grandTotal" class="form-control" name="grand_total" value="0" readonly>
+                                </div>
+                                <div class="form-group m-t-10 row">
+                                    <label for="paymentReceived" class="col-form-label text-lg-right text-left">
+                                        Pembayaran
+                                    </label>
+                                    <input type="text" id="paymentReceived" class="form-control" name="payment_received" value="0">
+                                </div>
+                                <div class="form-group m-t-10 row">
+                                    <label for="paymentChange" class="col-form-label text-lg-right text-left">
+                                        Kembalian
+                                    </label>
+                                    <input type="text" id="paymentChange" class="form-control" name="payment_change" value="0" readonly>
                                 </div>
                                 <div class="form-group m-t-10 row">
                                     <label for="voucherSelect" class="col-form-label text-lg-right text-left">
@@ -288,15 +300,7 @@
             paymentMethodSelect = $('#paymentMethodSelect').val(),
             itemBought = $('.item-bought').length;
 
-        console.log('customerName = '+customerName);
-        console.log('date = '+date);
-        console.log('paymentMethodSelect = '+paymentMethodSelect);
-        console.log('itemBought = '+itemBought);
-
-        if (customerName == '') {
-            alert('Mohon isi nama customer');
-            $('#customerName').focus();
-        } else if (date == '') {
+        if (date == '') {
             alert('Mohon isi tanggal');
             $('#date').focus();
         } else if (paymentMethodSelect == '') {
@@ -310,7 +314,6 @@
                 .text('Menyimpan ...')
                 .attr('disabled', '');
 
-            // $('#addTransaction').submit();
             saveTransaction();
         }
     })
@@ -548,6 +551,10 @@
         }
     });
 
+    $('#paymentReceived').on('keyup, change', function (e) {
+        calculateChange();
+    });
+
     function removeItem(rowId) {
         $('div[row-id='+rowId+']').remove();
 
@@ -668,6 +675,8 @@
 
                     console.log('total from voucher = '+total);
                     $('#grandTotal').val(total);
+                    $('#paymentReceived').val(total);
+                    $('#paymentChange').val(0);
                 },
                 error: function (err) {
                     console.log(err);
@@ -675,23 +684,91 @@
             })
         } else {
             $('#grandTotal').val(total);
+            $('#paymentReceived').val(total);
+            $('#paymentChange').val(0);
         }
     }
 
+    function calculateChange() {
+        var total = $('#grandTotal').val(),
+            paymentReceived = $('#paymentReceived').val(),
+            change = paymentReceived - total;
+
+        $('#paymentChange').val(change);
+    }
+
     function printReceipt() {
+        var title = $('#receiptTitle').val(),
+            subtitle = $('#receiptSubtitle').val(),
+            closing1 = $('#receiptClosing1').val(),
+            closing2 = $('#receiptClosing2').val(),
+            closing3 = $('#receiptClosing3').val();
+
+        var currentDate = '{{ formatDate(now()) }}',
+            currentStaff = '{{ Auth::user()->name }}';
+
         var printer = new Recta('APPKEY', '1811');
+
+        var trxHeader = JSON.parse($('#receiptHeaderItemBought').val());
+        var itemBought = JSON.parse($('#receiptDetailItemBought').val());
+
+        var headerItem = '';
+        var detailItem = '';
+        for (let index = 0; index < itemBought.length; index++) {
+            detailItem += itemBought[index].goods_name;
+            detailItem += '\n' + itemBought[index].qty + ' x Rp. ' + itemBought[index].goods_price;
+            detailItem += '\nRp. '+itemBought[index].goods_price_after_discount+'\n';
+        }
+
+        headerItem += 'Total Harga  Rp. ' + trxHeader.grand_total + '\n';
+        headerItem += 'Bayar        Rp. '+ trxHeader.payment_received + '\n';
+        headerItem += 'Kembalian    Rp. ' + trxHeader.payment_change+'\n';
+
+        console.log('headerItem');
+        console.log(headerItem);
+
+        console.log('detailItem');
+        console.log(detailItem);
+
         printer.open().then(function () {
             printer.align('center')
-                .text('Hello World !!')
                 .bold(true)
-                .text('This is bold text')
+                .text(title)
                 .bold(false)
-                .underline(true)
-                .text('This is underline text')
-                .underline(false)
-                .barcode('UPC-A', '123456789012')
+                .text(subtitle)
+
+                .bold(false)
+                .text('-------------------------')
+                .text(currentDate)
+                .text('Staff : ' +currentStaff)
+                .feed(2)
+                .text('-------------------------')
+
+                .align('left')
+                .raw(detailItem)
+                .text('-------------------------')
+                .feed(1)
+
+                .raw(headerItem)
+
+                .align('center')
+                .text(closing1)
+                .text(closing2)
+                .text(closing3)
+
                 .cut()
                 .print()
+            // printer.align('center')
+            //     .text('Hello World !!')
+            //     .bold(true)
+            //     .text('This is bold text')
+            //     .bold(false)
+            //     .underline(true)
+            //     .text('This is underline text')
+            //     .underline(false)
+            //     .barcode('UPC-A', '123456789012')
+            //     .cut()
+            //     .print()
         })
     }
 
@@ -710,9 +787,9 @@
                     .text('Simpan')
                     .removeAttr('disabled');
 
-                console.log('berhasil');
                 console.log(res);
-
+                $('#receiptHeaderItemBought').val(JSON.stringify(res.header));
+                $('#receiptDetailItemBought').val(JSON.stringify(res.detail));
                 $('#receipt').modal('show');
             },
             error: function (err) {

@@ -18,7 +18,9 @@ class CreateTransactionTable extends Migration
             $table->integer('voucher_id')->nullable();
             $table->integer('shift_record_id')->default(0);
             $table->integer('payment_method_id');
-            $table->text('customer_name');
+            $table->text('payment_received')->nullable();
+            $table->text('payment_change')->nullable();
+            $table->text('customer_name')->nullable();
             $table->text('pickup_method');
             $table->text('grand_total');
             $table->integer('total_qty');

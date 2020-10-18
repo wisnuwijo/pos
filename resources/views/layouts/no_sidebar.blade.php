@@ -47,7 +47,7 @@
                 <!-- User Account: style can be found in dropdown-->
                 <li class="nav-item dropdown user user-menu">
                     <a href="#" class="nav-link dropdown-toggle padding-user pt-3">
-                        <img src="{{asset('assets/img/authors/avatar1.jpg')}}" width="35"
+                        <img src="{{asset('assets/img/authors/avatar1.png')}}" width="35"
                              class="rounded-circle img-fluid pull-left"
                              height="35" alt="User Image">
                         <div class="riot">
@@ -62,7 +62,7 @@
                     <ul class="dropdown-menu">
                         <!-- User image -->
                         <li class="user-header">
-                            <img src="{{asset('assets/img/authors/avatar1.jpg')}}" class="rounded-circle" alt="User Image">
+                            <img src="{{asset('assets/img/authors/avatar1.png')}}" class="rounded-circle" alt="User Image">
                             <p> {{ Auth::user()->name }}</p>
                         </li>
                         <!-- Menu Body -->

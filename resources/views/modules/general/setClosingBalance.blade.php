@@ -46,9 +46,18 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label for="name" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left">Penerimaan Sistem</label>
+                                <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
+                                    <input type="text" class="form-control form-control-lg" id="finalBalance" value="Rp. {{ formatNumber($journal) }}" readonly>
+                                    <div style="margin-top:10px">
+                                        Lihat lebih rinci penerimaan sistem di <a href="{{ url('journal') }}" target="_blank">Jurnal Keuangan</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label for="closing_balance" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left">Kas Akhir</label>
                                 <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
-                                    <input type="number" name="closing_balance" class="form-control form-control-lg" amount id="closing_balance" required>
+                                    <input type="number" name="closing_balance" class="form-control form-control-lg" value="{{ $journal }}" amount id="closing_balance" required>
                                     <div class="invalid-feedback username-feedback"></div>
                                 </div>
                             </div>

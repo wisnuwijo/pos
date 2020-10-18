@@ -114,4 +114,6 @@ function formatNumber($number) {
         $format = number_format($number,2,',','.');
 	    return $format;
     }
+
+    return 0;
 }

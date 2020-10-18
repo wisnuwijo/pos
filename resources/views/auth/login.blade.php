@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>::Admin Login::</title>
+    <title>{{ env('APP_NAME') }} - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{{asset('assets/img/favicon.ico')}}" />
     <!-- Bootstrap -->

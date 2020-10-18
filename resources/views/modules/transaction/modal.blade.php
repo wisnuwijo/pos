@@ -202,17 +202,51 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title mt-0" id="receiptTitle">Cetak Receipt</h4>
+                <h4 class="modal-title mt-0">Cetak Nota</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                     ×
                 </button>
             </div>
             <div class="modal-body">
-                RECEIPT
+                <div class="row">
+                    <input type="hidden" id="receiptHeaderItemBought">
+                    <input type="hidden" id="receiptDetailItemBought">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="receiptTitle">Judul</label>
+                            <input type="text" id="receiptTitle" class="form-control input-md" value="SLEEPLESS COFFEE">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="receiptSubtitle">Sub Judul</label>
+                            <input type="text" id="receiptSubtitle" class="form-control input-md" value="Jl. Kolonel Sugiono, Susukan Ungaran Timur, Kab. Semarang">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="receiptClosing1">Penutup 1</label>
+                            <input type="text" id="receiptClosing1" class="form-control input-md" value="Thank You">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="receiptClosing2">Penutup 2</label>
+                            <input type="text" id="receiptClosing2" class="form-control input-md" value="follow our instagram">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="receiptClosing3">Penutup 3</label>
+                            <input type="text" id="receiptClosing3" class="form-control input-md" value="sleeplesscoffeestay">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="row pull-right">
                     <div class="col-md-12">
+                        <a class="btn btn-primary btn-md" href="{{ url('transaction') }}">Kembali ke Transaksi</a>
                         <button class="btn btn-default btn-md" id="printReceiptBtn" onclick="printReceipt()">Cetak</button>
                     </div>
                 </div>
