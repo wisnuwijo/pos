@@ -212,7 +212,7 @@ class TransactionController extends Controller
 
     public function transactionAdd(Request $req)
     {
-        $goods = DB::table('goods')->get();
+        $goods = DB::table('goods')->where('goods_category_id',1)->get();
         $voucher = DB::table('voucher')->get();
         $paymentMethod = DB::table('payment_method')->get();
 

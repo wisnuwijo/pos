@@ -697,6 +697,13 @@
         $('#paymentChange').val(change);
     }
 
+    function formatRupiah(angka) {
+        var reverse = angka.toString().split('').reverse().join(''),
+            ribuan = reverse.match(/\d{1,3}/g);
+        ribuan = ribuan.join('.').split('').reverse().join('');
+        return ribuan;
+    }
+
     function printReceipt() {
         var title = $('#receiptTitle').val(),
             subtitle = $('#receiptSubtitle').val(),
@@ -707,7 +714,9 @@
         var currentDate = '{{ formatDate(now()) }}',
             currentStaff = '{{ Auth::user()->name }}';
 
-        var printer = new Recta('APPKEY', '1811');
+        var printerAppKey = '{{ env("PRINTER_APP_KEY") }}',
+            printerAppPort = '{{ env("PRINTER_APP_PORT") }}';
+        var printer = new Recta(printerAppKey, printerAppPort);
 
         var trxHeader = JSON.parse($('#receiptHeaderItemBought').val());
         var itemBought = JSON.parse($('#receiptDetailItemBought').val());
@@ -716,13 +725,13 @@
         var detailItem = '';
         for (let index = 0; index < itemBought.length; index++) {
             detailItem += itemBought[index].goods_name;
-            detailItem += '\n' + itemBought[index].qty + ' x Rp. ' + itemBought[index].goods_price;
-            detailItem += '\nRp. '+itemBought[index].goods_price_after_discount+'\n';
+            detailItem += '\n' + formatRupiah(itemBought[index].qty) + ' x Rp ' + formatRupiah(itemBought[index].goods_price) +'    = Rp ' + formatRupiah(itemBought[index].goods_price_after_discount) + '\n';
+            // detailItem += '\nRp '+itemBought[index].goods_price_after_discount+'\n';
         }
 
-        headerItem += 'Total Harga  Rp. ' + trxHeader.grand_total + '\n';
-        headerItem += 'Bayar        Rp. '+ trxHeader.payment_received + '\n';
-        headerItem += 'Kembalian    Rp. ' + trxHeader.payment_change+'\n';
+        headerItem += 'Total Harga  Rp ' + formatRupiah(trxHeader.grand_total) + '\n';
+        headerItem += 'Bayar        Rp '+ formatRupiah(trxHeader.payment_received) + '\n';
+        headerItem += 'Kembalian    Rp ' + formatRupiah(trxHeader.payment_change)+'\n';
 
         console.log('headerItem');
         console.log(headerItem);
@@ -737,20 +746,23 @@
                 .bold(false)
                 .text(subtitle)
 
+                .align('center')
+                .text('------------------------------')
+                .align('left')
                 .bold(false)
-                .text('-------------------------')
                 .text(currentDate)
                 .text('Staff : ' +currentStaff)
-                .feed(2)
-                .text('-------------------------')
+                .feed(1)
+                .text('------------------------------')
 
                 .align('left')
                 .raw(detailItem)
-                .text('-------------------------')
+                .text('------------------------------')
                 .feed(1)
 
                 .raw(headerItem)
 
+                .feed(1)
                 .align('center')
                 .text(closing1)
                 .text(closing2)
