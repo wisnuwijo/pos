@@ -391,7 +391,7 @@ class TransactionController extends Controller
 
     public function addSpending(Request $req)
     {
-        $goods = DB::table('goods')->get();
+        $goods = DB::table('goods')->where('goods_category_id', 2)->get();
         $voucher = DB::table('voucher')->get();
         $paymentMethod = DB::table('payment_method')->get();
         $supplier = DB::table('supplier')->get();
