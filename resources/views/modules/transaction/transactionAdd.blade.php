@@ -723,15 +723,16 @@
 
         var headerItem = '';
         var detailItem = '';
+        var paymentMethod = $('#paymentMethodSelect :selected').text();
         for (let index = 0; index < itemBought.length; index++) {
             detailItem += itemBought[index].goods_name;
             detailItem += '\n' + formatRupiah(itemBought[index].qty) + ' x Rp ' + formatRupiah(itemBought[index].goods_price) +'    = Rp ' + formatRupiah(itemBought[index].goods_price_after_discount) + '\n';
             // detailItem += '\nRp '+itemBought[index].goods_price_after_discount+'\n';
         }
 
-        headerItem += 'Total Harga  Rp ' + formatRupiah(trxHeader.grand_total) + '\n';
-        headerItem += 'Bayar        Rp '+ formatRupiah(trxHeader.payment_received) + '\n';
-        headerItem += 'Kembalian    Rp ' + formatRupiah(trxHeader.payment_change)+'\n';
+        headerItem += 'Total Harga   Rp ' + formatRupiah(trxHeader.grand_total) + '\n';
+        headerItem += 'Bayar('+paymentMethod+')  Rp '+ formatRupiah(trxHeader.payment_received) + '\n';
+        headerItem += 'Kembalian     Rp ' + formatRupiah(trxHeader.payment_change)+'\n';
 
         console.log('headerItem');
         console.log(headerItem);

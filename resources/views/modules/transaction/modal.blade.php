@@ -220,7 +220,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="receiptSubtitle">Sub Judul</label>
-                            <input type="text" id="receiptSubtitle" class="form-control input-md" value="Jl. Kolonel Sugiono, Susukan,\nUngaran Timur, Kab. Semarang">
+                            <input type="text" id="receiptSubtitle" class="form-control input-md" value="Jl. Kolonel Sugiono, Susukan, Ungaran Timur, Kab. Semarang">
                         </div>
                     </div>
                     <div class="col-md-12">
