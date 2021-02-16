@@ -110,7 +110,7 @@
                                             <option opt-type="button" value="[add-voucher]">+ TAMBAH VOUCHER</option>
                                         </optgroup>
                                         @foreach ($voucher as $vcr)
-                                            <option opt-type="option" value="{{ $vcr->id }}">{{ $vcr->voucher_name }}</option>
+                                            <option opt-type="voucher-option" value="{{ $vcr->id }}">{{ $vcr->voucher_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -124,7 +124,7 @@
                                             <option opt-type="button" value="[add-paymentMethod]">+ TAMBAH METODE PEMBAYARAN</option>
                                         </optgroup>
                                         @foreach ($paymentMethod as $vcr)
-                                            <option opt-type="option" value="{{ $vcr->id }}">{{ $vcr->name }}</option>
+                                            <option opt-type="payment-method-option" value="{{ $vcr->id }}">{{ $vcr->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -298,7 +298,10 @@
         var customerName = $('#customerName').val(),
             date = $('#date').val(),
             paymentMethodSelect = $('#paymentMethodSelect').val(),
-            itemBought = $('.item-bought').length;
+            itemBought = $('.item-bought').length,
+            paymentReceived = $('#paymentReceived').val(),
+            paymentChange = $('#paymentChange').val(),
+            grandTotal = $('#grandTotal').val();
 
         if (date == '') {
             alert('Mohon isi tanggal');
@@ -309,6 +312,9 @@
         } else if (!(itemBought > 0)) {
             alert('Mohon masukkan barang yang akan dijual');
             $('#goodsSelect').focus();
+        } else if (parseFloat(paymentChange) < 0) {
+            alert('Pembayaran tidak cukup, mohon pastikan pembayaran lebih dari Rp. ' + formatRupiah(grandTotal));
+            $('#paymentReceived').focus();
         } else {
             $('#btn-save')
                 .text('Menyimpan ...')
@@ -374,7 +380,7 @@
             method: 'POST',
             data: $(this).serialize(),
             success: function(response) {
-                $('option[opt-type="option"]').remove();
+                $('option[opt-type="voucher-option"]').remove();
 
                 var lastIndex;
                 for (var i=0;i < response.data.length;i++) {
@@ -409,7 +415,7 @@
             method: 'POST',
             data: $(this).serialize(),
             success: function(response) {
-                $('#paymentMethodSelect option[opt-type="option"]').remove();
+                $('#paymentMethodSelect option[opt-type="payment-method-option"]').remove();
 
                 var lastIndex;
                 for (var i=0;i < response.data.length;i++) {
@@ -654,6 +660,8 @@
                                 .filter(':selected')
                                 .val();
 
+        var receivedPayment = $('#paymentReceived').val();
+
         // get voucher detail information
         if (selectedVoucher != '') {
             $.ajax({
@@ -675,8 +683,13 @@
 
                     console.log('total from voucher = '+total);
                     $('#grandTotal').val(total);
-                    $('#paymentReceived').val(total);
-                    $('#paymentChange').val(0);
+
+                    if (receivedPayment != '') {
+                        calculateChange();
+                    } else {
+                        $('#paymentReceived').val(total);
+                        $('#paymentChange').val(0);
+                    }
                 },
                 error: function (err) {
                     console.log(err);
@@ -684,8 +697,13 @@
             })
         } else {
             $('#grandTotal').val(total);
-            $('#paymentReceived').val(total);
-            $('#paymentChange').val(0);
+
+            if (receivedPayment != '') {
+                calculateChange();
+            } else {
+                $('#paymentReceived').val(total);
+                $('#paymentChange').val(0);
+            }
         }
     }
 
@@ -702,6 +720,47 @@
             ribuan = reverse.match(/\d{1,3}/g);
         ribuan = ribuan.join('.').split('').reverse().join('');
         return ribuan;
+    }
+
+    function saveReceiptPrint() {
+        var title = $('#receiptTitle').val(),
+            subtitle = $('#receiptSubtitle').val(),
+            closing1 = $('#receiptClosing1').val(),
+            closing2 = $('#receiptClosing2').val(),
+            closing3 = $('#receiptClosing3').val();
+
+        var noteJson = {
+            'title': title,
+            'subtitle': subtitle,
+            'closing1': closing1,
+            'closing2': closing2,
+            'closing3': closing3
+        }
+        
+        var noteString = JSON.stringify(noteJson);
+
+        $.ajax({
+            url: '{{ url("transaction/savePrintNote") }}',
+            method: 'POST',
+            data: {
+                note: noteString,
+                _token: '{{ csrf_token() }}'
+            },
+            beforeSend: function() {
+                $('#printReceiptBtn').attr('disabled','');
+                $('#printReceiptBtn').text('Memproses ...');
+            },
+            success: function(res) {
+                $('#printReceiptBtn').removeAttr('disabled');
+                $('#printReceiptBtn').text('Cetak');
+
+                // print the receipt
+                printReceipt();
+            },
+            error: function(err) {
+                console.log('saveReceiptPrint error', err);
+            }
+        })
     }
 
     function printReceipt() {
@@ -771,6 +830,8 @@
 
                 .cut()
                 .print()
+            });
+        
             // printer.align('center')
             //     .text('Hello World !!')
             //     .bold(true)
@@ -782,7 +843,6 @@
             //     .barcode('UPC-A', '123456789012')
             //     .cut()
             //     .print()
-        })
     }
 
     function saveTransaction() {
@@ -796,17 +856,34 @@
                     .attr('disabled','');
             },
             success: function (res) {
+                console.log(res);
+                loadReceiptNote(JSON.stringify(res.header), JSON.stringify(res.detail));
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    }
+
+    function loadReceiptNote(header, detail) {
+        $('#receiptHeaderItemBought').val(header);
+        $('#receiptDetailItemBought').val(detail);
+        $('#receipt').modal('show');
+
+        $.ajax({
+            url: '{{ url("transaction/getPrintNote") }}',
+            method: 'GET',
+            success: function (res) {
                 $('#btn-save')
                     .text('Simpan')
                     .removeAttr('disabled');
 
-                console.log(res);
-                $('#receiptHeaderItemBought').val(JSON.stringify(res.header));
-                $('#receiptDetailItemBought').val(JSON.stringify(res.detail));
-                $('#receipt').modal('show');
-            },
-            error: function (err) {
-                console.log(err);
+                console.log('loadReceiptNote',res);
+                $('#receiptTitle').val(res.note.title);
+                $('#receiptSubtitle').val(res.note.subtitle);
+                $('#receiptClosing1').val(res.note.closing1);
+                $('#receiptClosing2').val(res.note.closing2);
+                $('#receiptClosing3').val(res.note.closing3);
             }
         })
     }

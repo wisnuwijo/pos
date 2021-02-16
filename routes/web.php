@@ -57,6 +57,8 @@ Route::group(['middleware' => ['auth','role','staff']], function() {
         Route::get('/', 'TransactionController@index');
         Route::get('/detail/{id}', 'TransactionController@detailTrx');
         Route::get('/add', 'TransactionController@transactionAdd');
+        Route::get('/getPrintNote', 'TransactionController@getPrintNote');
+        Route::post('/savePrintNote', 'TransactionController@savePrintNote');
         Route::post('/add', 'TransactionController@addTransaction');
         Route::post('/add/goodsCategory','TransactionController@goodsCategory');
         Route::post('/delete/{id}', 'TransactionController@deleteTransaction');

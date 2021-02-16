@@ -247,7 +247,7 @@
                 <div class="row pull-right">
                     <div class="col-md-12">
                         <a class="btn btn-primary btn-md" href="{{ url('transaction') }}">Kembali ke Transaksi</a>
-                        <button class="btn btn-default btn-md" id="printReceiptBtn" onclick="printReceipt()">Cetak</button>
+                        <button class="btn btn-default btn-md" id="printReceiptBtn" onclick="saveReceiptPrint()">Cetak</button>
                     </div>
                 </div>
             </div>

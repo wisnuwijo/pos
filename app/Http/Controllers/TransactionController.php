@@ -225,6 +225,32 @@ class TransactionController extends Controller
         return view('modules.transaction.transactionAdd', $data);
     }
 
+    public function getPrintNote(Request $req)
+    {
+        $getPrintNote = DB::table('print')->first();
+        $decodeJson = json_decode($getPrintNote->print_data);
+
+        $data = [
+            'note' => $decodeJson
+        ];
+
+        return response()->json($data);
+    }
+
+    public function savePrintNote(Request $req)
+    {
+        $printNote = $req->note;
+        $save = DB::table('print')
+                ->where('id', 1)
+                ->update([
+                    'print_data' => $printNote
+                ]);
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
     public function addTransaction(Request $req)
     {
         $name = $req->name;
