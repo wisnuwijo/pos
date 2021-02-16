@@ -799,6 +799,12 @@
         console.log('detailItem');
         console.log(detailItem);
 
+        var customerName = $('#customerName').val(),
+            customerNameOnReceipt = '';
+        if (customerName != '') {
+            customerNameOnReceipt = 'Customer : ' + customerName;
+        }
+
         printer.open().then(function () {
             printer.align('center')
                 .bold(true)
@@ -811,6 +817,7 @@
                 .align('left')
                 .bold(false)
                 .text(currentDate)
+                .text(customerNameOnReceipt)
                 .text('Staff : ' +currentStaff)
                 .feed(1)
                 .text('------------------------------')
