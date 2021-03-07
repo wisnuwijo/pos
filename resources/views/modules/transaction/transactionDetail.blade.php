@@ -100,7 +100,7 @@
                             </div>
                             <div class="form-group m-t-10 row">
                                 <h4>Jenis pesanan</h4>
-                                <input type="text" class="form-control"  value="{{ $transaction->pickup_method == 'dine_id' ? 'Dine in' : 'Take away' }}"  readonly>
+                                <input type="text" class="form-control"  value="{{ $transaction->pickup_method == 'dine_in' ? 'Dine in' : 'Take away' }}"  readonly>
                             </div>
                             <div class="form-group m-t-10 row">
                                 <h4>Daftar pesanan</h4>

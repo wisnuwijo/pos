@@ -83,6 +83,7 @@
                                     <td>Staff</td>
                                     <td>Tanggal</td>
                                     <td>Transaksi</td>
+                                    <td>Metode Pembayaran</td>
                                     <td>Keterangan</td>
                                     <td>Balance</td>
                                 </tr>
@@ -117,6 +118,7 @@
                 { data: 'staff' },
                 { data: 'created_at' },
                 { data: 'grand_total' },
+                { data: 'payment_method' },
                 { data: 'type' },
                 { data: 'balance' }
             ]

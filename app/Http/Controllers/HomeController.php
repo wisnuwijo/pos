@@ -157,4 +157,37 @@ class HomeController extends Controller
             return response()->json(['success' => false], 500);
         }
     }
+
+    public function getTrxBreakdown(Request $req)
+    {
+        $jurnalOpeningShift = DB::table('shift_record')
+                                ->where('active', 1)
+                                ->first();
+
+        $shiftRecordId = isset($jurnalOpeningShift) ? $jurnalOpeningShift->id : 0;
+        $staffId = isset($jurnalOpeningShift) ? $jurnalOpeningShift->user_id : 0;
+        $staffName = $staffId != 0 ? DB::table('users')->where('id', $staffId)->first()->name : '';
+
+        $getShiftTrx = DB::table('transaction')
+                        ->selectRaw('"'.$staffName.'" as staff, transaction.id, payment_method.name as payment_method, transaction.grand_total, transaction.created_at, "Income" as type')
+                        ->join('payment_method', 'transaction.payment_method_id','payment_method.id')
+                        ->where('transaction.shift_record_id', $shiftRecordId)
+                        ->orderBy('transaction.created_at','asc')
+                        ->get();
+
+        $journal = [];
+
+        $priceContainer = [];
+        for ($i=0; $i < count($getShiftTrx); $i++) {
+            $journal[strtolower($getShiftTrx[$i]->payment_method)]['list'][] = [
+                'grand_total' => $getShiftTrx[$i]->grand_total,
+                'transaction_id' => $getShiftTrx[$i]->id,
+            ];
+
+            $priceContainer[strtolower($getShiftTrx[$i]->payment_method)][] = $getShiftTrx[$i]->grand_total;
+            $journal[strtolower($getShiftTrx[$i]->payment_method)]['total'] = array_sum($priceContainer[strtolower($getShiftTrx[$i]->payment_method)]);
+        }
+
+        return response($journal);
+    }
 }

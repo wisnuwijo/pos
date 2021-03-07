@@ -13,7 +13,7 @@
         <?php $active = activeModule() ?>
         <h1>{{ $active }}</h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item pt-1"><a href="index"><i class="fa fa-fw fa-home"></i> {{ env('APP_NAME') }}</a>
+            <li class="breadcrumb-item pt-1"><a href="{{ url('/') }}"><i class="fa fa-fw fa-home"></i> {{ env('APP_NAME') }}</a>
             </li>
             <li class="breadcrumb-item">
                 <a href="#">{{ $active }}</a>
@@ -45,12 +45,22 @@
                                     <input type="text" class="form-control form-control-lg" id="name" value="{{ Auth::user()->name }}" readonly>
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            <div class="form-group row" style="margin-bottom:20px">
                                 <label for="name" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left">Penerimaan Sistem</label>
                                 <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
                                     <input type="text" class="form-control form-control-lg" id="finalBalance" value="Rp. {{ formatNumber($journal) }}" readonly>
                                     <div style="margin-top:10px">
                                         Lihat lebih rinci penerimaan sistem di <a href="{{ url('journal') }}" target="_blank">Jurnal Keuangan</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="form-group row" style="margin-top:20px">
+                                <label for="closing_balance" class="col-lg-2 col-md-2  col-sm-12 col-12 col-form-label text-lg-right text-md-right text-left"></label>
+                                <div class="col-lg-10 col-md-10  col-sm-12 col-12 col-sm-12">
+                                    Total Penjualan Berdasarkan Metode Pembayaran
+                                    <div class="table-responsive" style="margin-top: 10px;">
+                                        <table class="table table-striped" id="sales-by-payment-method"></table>
                                     </div>
                                 </div>
                             </div>
@@ -76,6 +86,40 @@
 
 @section('js')
 <script>
+
+    function formatRupiah(angka) {
+        var reverse = angka.toString().split('').reverse().join(''),
+            ribuan = reverse.match(/\d{1,3}/g);
+        ribuan = ribuan.join('.').split('').reverse().join('');
+        return ribuan;
+    }
+
+    $(function () {
+        // render detail sales to the page
+        $.ajax({
+            url: '{{ url("closing_balance/get_trx_breakdown") }}',
+            method: 'GET',
+            success: function(res) {
+                console.log(res);
+                var detailSalesByPaymentMethodElm = '';
+                for (var key in res) {
+                    if (res.hasOwnProperty(key)) {
+                        detailSalesByPaymentMethodElm += '<tr>';
+                        detailSalesByPaymentMethodElm += '<td>' + key + '</td>';
+                        detailSalesByPaymentMethodElm += '<td> Rp. ' + formatRupiah(res[key].total) + '</td>';
+                        detailSalesByPaymentMethodElm += '</tr>';
+                    }
+                }
+                
+                $('#sales-by-payment-method').empty();
+                $('#sales-by-payment-method').append(detailSalesByPaymentMethodElm);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    });
+
     $('form').submit(function (e) {
         e.preventDefault();
 

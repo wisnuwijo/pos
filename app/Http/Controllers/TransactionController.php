@@ -551,12 +551,23 @@ class TransactionController extends Controller
         $staffId = isset($jurnalOpeningShift) ? $jurnalOpeningShift->user_id : 0;
         $staffName = $staffId != 0 ? DB::table('users')->where('id', $staffId)->first()->name : '';
 
-        $getShiftTrx = DB::table('transaction')
-                        ->selectRaw('"'.$staffName.'" as staff, grand_total, created_at, "Income" as type')
-                        ->where('shift_record_id', $shiftRecordId);
+        // $getShiftTrx = DB::table('transaction')
+        //                 ->selectRaw('"'.$staffName.'" as staff, grand_total, created_at, "Income" as type')
+        //                 ->where('shift_record_id', $shiftRecordId);
 
+        $getShiftTrx = DB::table('transaction')
+                        ->selectRaw('"'.$staffName.'" as staff, payment_method.name as payment_method, transaction.grand_total, transaction.created_at, "Income" as type')
+                        ->join('payment_method', 'transaction.payment_method_id','payment_method.id')
+                        ->where('transaction.shift_record_id', $shiftRecordId);
+
+        // $getShiftSpending = DB::table('spending')
+        //                     ->selectRaw('"'.$staffName.'" as staff, grand_total, created_at, "Spending" as type')
+        //                     ->where('shift_record_id', $shiftRecordId)
+        //                     ->union($getShiftTrx)
+        //                     ->orderBy('created_at','asc')
+        //                     ->get();
         $getShiftSpending = DB::table('spending')
-                            ->selectRaw('"'.$staffName.'" as staff, grand_total, created_at, "Spending" as type')
+                            ->selectRaw('"'.$staffName.'" as staff, "" as payment_method, grand_total, created_at, "Spending" as type')
                             ->where('shift_record_id', $shiftRecordId)
                             ->union($getShiftTrx)
                             ->orderBy('created_at','asc')
@@ -570,6 +581,7 @@ class TransactionController extends Controller
             $journal[$i]['grand_total'] = 'Rp. '.formatNumber($getShiftSpending[$i]->grand_total);
             $journal[$i]['created_at'] = formatDate($getShiftSpending[$i]->created_at);
             $journal[$i]['type'] = $getShiftSpending[$i]->type;
+            $journal[$i]['payment_method'] = $getShiftSpending[$i]->payment_method;
 
             if (strtolower($getShiftSpending[$i]->type) == 'income') {
                 // +
@@ -590,6 +602,7 @@ class TransactionController extends Controller
                 'created_at' => formatDate($jurnalOpeningShift->created_at),
                 'type' => 'Opening Balance',
                 'balance' => 'Rp. '.formatNumber($jurnalOpeningShift->opening_balance),
+                'payment_method' => ''
             ]);
         }
 
@@ -601,6 +614,7 @@ class TransactionController extends Controller
                 'created_at' => formatDate($jurnalOpeningShift->created_at),
                 'type' => 'Closing Balance',
                 'balance' => 'Rp. '.formatNumber($jurnalOpeningShift->closing_balance),
+                'payment_method' => ''
             ];
         }
 
