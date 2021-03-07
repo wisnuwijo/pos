@@ -77,6 +77,7 @@
                                     <a class="btn btn-primary btn-sm" href="{{ url('transaction/add') }}">
                                         Tambah Penjualan
                                     </a>
+                                    <a class="btn btn-primary btn-sm" href="{{ url('transaction/excel/download') }}">Dowload Excel</a>
 
                                     <table class="table table-striped" id="salesTable" style="margin-top:20px">
                                         <thead>

@@ -59,6 +59,9 @@ Route::group(['middleware' => ['auth','role','staff']], function() {
 
     // transaction
     Route::group(['prefix' => 'transaction'], function() {
+        Route::get('/excel/sales','TransactionController@salesExcel');
+        Route::get('/excel/download','TransactionController@testExcel');
+
         Route::get('/', 'TransactionController@index');
         Route::get('/detail/{id}', 'TransactionController@detailTrx');
         Route::get('/add', 'TransactionController@transactionAdd');

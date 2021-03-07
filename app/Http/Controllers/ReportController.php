@@ -91,7 +91,7 @@ class ReportController extends Controller
                 'no' => count($journal) + 1,
                 'staff' => $staffName,
                 'grand_total' => 'Rp. '.formatNumber($jurnalOpeningShift->closing_balance),
-                'created_at' => formatDate($jurnalOpeningShift->created_at),
+                'created_at' => formatDate($jurnalOpeningShift->updated_at),
                 'type' => 'Closing Balance',
                 'balance' => 'Rp. '.formatNumber($jurnalOpeningShift->closing_balance),
             ];
