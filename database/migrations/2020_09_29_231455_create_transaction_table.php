@@ -16,7 +16,7 @@ class CreateTransactionTable extends Migration
         Schema::create('transaction', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('voucher_id')->nullable();
-            $table->integer('shift_record_id')->default(0);
+            $table->integer('shift_record_id')->nullable();
             $table->integer('payment_method_id');
             $table->text('payment_received')->nullable();
             $table->text('payment_change')->nullable();

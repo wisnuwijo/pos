@@ -15,7 +15,7 @@ class CreateSpendingTable extends Migration
     {
         Schema::create('spending', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('shift_record_id')->default(0);;
+            $table->integer('shift_record_id')->nullable();;
             $table->integer('supplier_id');
             $table->text('supplier_name');
             $table->integer('grand_total');

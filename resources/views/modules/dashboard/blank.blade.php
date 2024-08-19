@@ -152,44 +152,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Ringkasan Pendapatan</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                Dari
-                                <input onchange="updateStats()" value="{{ date('Y-m-01') }}" type="date" class="form-control" id="dateFrom" style="margin-top:5px">
-                            </div>
-                            <div class="col-md-6">
-                                Sampai
-                                <input onchange="updateStats()" value="{{ date('Y-m-d') }}" type="date" class="form-control" id="dateTo" style="margin-top:5px">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <br>
-                                <span class="title">Total Pendapatan :</span> <span id="totalIncome">123</span>
-                                <br>
-                                <hr width="100%" height='1px' style="border-top: 1px solid #dadada !important" />
-                                <canvas id="myChart" width="400" height="200"></canvas>
-                            </div>
-                            <div class="col-md-4">
-                                <br>
-                                <span class="title">Total Item Terjual :</span> <span id="totalPurchasedItem">123</span>
-                                <br>
-                                <hr width="100%" height='1px' style="border-top: 1px solid #dadada !important" />
-                                <canvas id="pie" width="400" height="400"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </section>
     <!-- /.content -->
 @stop
