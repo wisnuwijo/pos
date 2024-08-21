@@ -341,7 +341,6 @@
             discountType = $('#discount_type_id option').filter(':selected').val(),
             discount = $(this).val();
 
-        // console.log(discountType);
         var calculateDiscount;
         if (discountType == 'amount') {
             calculateDiscount = newPrice - discount;
@@ -359,14 +358,12 @@
 
     // input voucher
     $('#voucher-discount-amount').click(function () {
-        console.log('amount');
         $('#voucher-discount-percent').val('');
         $('#voucher-discount-percent').attr('readonly','');
         $('#voucher-discount-amount').removeAttr('readonly');
     })
 
     $('#voucher-discount-percent').click(function () {
-        console.log('percent');
         $('#voucher-discount-amount').val('');
         $('#voucher-discount-amount').attr('readonly','');
         $('#voucher-discount-percent').removeAttr('readonly');
@@ -401,8 +398,7 @@
                 $('#form-add-voucher input[resetable=true]').val('');
             },
             error: function(err) {
-                console.log(err);
-                alert('Oops, sepertinya ada yang salah');
+                alert("Oops, terjadi kesalahan: "+ err);
             }
         })
     })
@@ -436,8 +432,7 @@
                 $('#form-add-paymentMethod input[resetable=true]').val('');
             },
             error: function(err) {
-                console.log(err);
-                alert('Oops, sepertinya ada yang salah');
+                alert("Oops, terjadi kesalahan: "+ err);
             }
         })
     })
@@ -569,7 +564,6 @@
                 .find('.item-number')
                 .first()
                 .text(index+1)
-            console.log($(this));
         })
 
         // calculate grand total
@@ -583,7 +577,6 @@
             discountType = $('#discount_type_id option').filter(':selected').val(),
             discount = $('#discount').val();
 
-        // console.log(discountType);
         var calculateDiscount;
         if (discountType == 'amount') {
             calculateDiscount = newPrice - discount;
@@ -619,6 +612,8 @@
     function getPrice() {
         var goodsSelected = $('#goodsSelect option').filter(':selected').val();
 
+        if (goodsSelected == "") return;
+
         $.ajax({
             url: '{{ url("transaction/goods/getPrice") }}/'+goodsSelected,
             method: 'GET',
@@ -630,8 +625,7 @@
                 $('#qty').focus();
             },
             error: function (err) {
-                console.log('getPrice ERR');
-                console.log(err);
+                alert("Oops, terjadi kesalahan: "+ err);
             }
         })
     }
@@ -647,7 +641,6 @@
         // summarize all item
         $('.item-bought')
             .each(function (index) {
-                console.log(index);
                 var price = $(this)
                             .find('input[kind=price]')
                             .val();
@@ -675,13 +668,10 @@
                     // calculate total
                     if (voucherAmount != null && voucherAmount != '' && voucherAmount != undefined) {
                         total -= parseFloat(voucherAmount);
-                        console.log('decreased by amount');
                     } else {
                         total -= ((parseFloat(voucherPercent) / 100) * total);
-                        console.log('decreased by percent ');
                     }
 
-                    console.log('total from voucher = '+total);
                     $('#grandTotal').val(total);
 
                     if (receivedPayment != '') {
@@ -692,7 +682,7 @@
                     }
                 },
                 error: function (err) {
-                    console.log(err);
+                    alert("Oops, terjadi kesalahan: "+ err);
                 }
             })
         } else {
@@ -736,7 +726,7 @@
             'closing2': closing2,
             'closing3': closing3
         }
-        
+
         var noteString = JSON.stringify(noteJson);
 
         $.ajax({
@@ -758,7 +748,7 @@
                 printReceipt();
             },
             error: function(err) {
-                console.log('saveReceiptPrint error', err);
+                alert("Oops, terjadi kesalahan: "+ err);
             }
         })
     }
@@ -792,12 +782,6 @@
         headerItem += 'Total Harga   Rp ' + formatRupiah(trxHeader.grand_total) + '\n';
         headerItem += 'Bayar('+paymentMethod+')  Rp '+ formatRupiah(trxHeader.payment_received) + '\n';
         headerItem += 'Kembalian     Rp ' + formatRupiah(trxHeader.payment_change)+'\n';
-
-        console.log('headerItem');
-        console.log(headerItem);
-
-        console.log('detailItem');
-        console.log(detailItem);
 
         var customerName = $('#customerName').val(),
             customerNameOnReceipt = '';
@@ -838,7 +822,7 @@
                 .cut()
                 .print()
             });
-        
+
             // printer.align('center')
             //     .text('Hello World !!')
             //     .bold(true)
@@ -863,11 +847,10 @@
                     .attr('disabled','');
             },
             success: function (res) {
-                console.log(res);
                 loadReceiptNote(JSON.stringify(res.header), JSON.stringify(res.detail));
             },
             error: function (err) {
-                console.log(err);
+                alert("Oops, terjadi kesalahan: "+ err);
             }
         })
     }
@@ -885,7 +868,6 @@
                     .text('Simpan')
                     .removeAttr('disabled');
 
-                console.log('loadReceiptNote',res);
                 $('#receiptTitle').val(res.note.title);
                 $('#receiptSubtitle').val(res.note.subtitle);
                 $('#receiptClosing1').val(res.note.closing1);
@@ -941,8 +923,7 @@
                             .val(calculatePrice);
                 },
                 error: function (err) {
-                    console.log('getPrice ERR');
-                    console.log(err);
+                    alert("Oops, terjadi kesalahan: "+ err);
                 }
             })
 
