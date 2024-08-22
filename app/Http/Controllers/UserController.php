@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use DB;
 
 class UserController extends Controller
@@ -124,6 +126,7 @@ class UserController extends Controller
                             'name' => $name,
                             'username' => $username,
                             'password' => bcrypt($password),
+                            'api_token' => hash('sha256', Str::random(60)),
                             'secret' => $password
                         ]);
 

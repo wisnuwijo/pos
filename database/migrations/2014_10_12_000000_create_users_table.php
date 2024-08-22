@@ -19,11 +19,13 @@ class CreateUsersTable extends Migration
             $table->integer('shift_record_id')->nullable();
             $table->integer('shift_id')->nullable();
             $table->text('name');
-            // $table->text('email')->unique();
             $table->text('email')->nullable();
             $table->text('username')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->text('password');
+            $table->string('api_token', 80)->unique()
+                  ->nullable()
+                  ->default(null);
             $table->text('secret');
             $table->rememberToken();
             $table->timestamps();

@@ -14,9 +14,7 @@ class PrintSeeder extends Seeder
         DB::table('print')
             ->insert([
                 [
-                    'print_data' => '{"title":"SLEEPLESS COFFEE","subtitle":"Jl. Kolonel Sugiono, Susukan, Ungaran Timur, Kab. Semarang","closing1":"Thank You","closing2":"follow our instagram","closing3":"sleeplesscoffeestay"}'
-                ],
-                [
+                    'print_data' => '{"title":"SLEEPLESS COFFEE","subtitle":"Jl. Kolonel Sugiono, Susukan, Ungaran Timur, Kab. Semarang","closing1":"Thank You","closing2":"follow our instagram","closing3":"sleeplesscoffeestay"}',
                     'created_at' => now()
                 ]
             ]);
