@@ -11,7 +11,10 @@ Route::get('/home', function () {
     return redirect('/');
 })->middleware('auth');
 
-Route::group(['middleware' => 'auth'], function() {
+Route::get('/renew', 'ContractController@index')->middleware(['auth','contract']);
+Route::post('/renew', 'ContractController@store')->middleware(['auth','contract']);
+
+Route::group(['middleware' => ['auth','contract']], function() {
     // set opening balance
     Route::get('/opening_balance', 'HomeController@setOpeningBalance');
     Route::post('/opening_balance', 'HomeController@saveOpeningBalance');
@@ -36,7 +39,7 @@ Route::group(['middleware' => 'auth'], function() {
 
 });
 
-Route::group(['middleware' => ['auth','role','staff']], function() {
+Route::group(['middleware' => ['auth','role','staff','contract']], function() {
 
     // dashboard
     Route::get('/', 'HomeController@index');
